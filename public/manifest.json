@@ -7,11 +7,32 @@
     "default_popup": "index.html",
     "default_title": "Open the popup"
   },
- 
+  "icons": {
+    "16": "favicon-16x16.png",
+    "32": "favicon-32x32.png",
+    "192": "android-chrome-192x192.png",
+    "512": "android-chrome-512x512.png"
+  },
  "content_security_policy": "script-src 'self' 'sha256-3O7hfOqzYo46dDx9x5bJ0mZWf9ltnA8nLeedT+UDpN4='; object-src 'self'",
-"permissions": [
+"content_scripts": [
+  {
+    "js": [
+      "content.js"
+    ],
+    "matches": [
+      "<all_urls>"
+    ]
+  }
+],
+ "permissions": [
   "storage",
   "tabs",
   "notifications"
-  ]
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  }
 }

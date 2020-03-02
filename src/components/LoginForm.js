@@ -1,3 +1,4 @@
+/* global chrome */
 import React from "react"
 import { Form, Icon, Input, Button, Checkbox } from "antd"
 // import { handleLogin } from "../utils/auth"
@@ -30,6 +31,7 @@ class Login extends React.Component {
   render() {
     const { getFieldDecorator } = this.props.form
     return (
+      <>
       <Form onSubmit={this.handleSubmit} className="login-form">
         <h1>Login</h1>
         <Form.Item>
@@ -53,26 +55,36 @@ class Login extends React.Component {
               placeholder="Password"
             />
           )}
-        </Form.Item>
-        <Form.Item>
-          {getFieldDecorator("remember", {
-            valuePropName: "checked",
-            initialValue: true,
-          })(<Checkbox>Remember me</Checkbox>)}
-          <Link className="login-form-forgot" to="/forgot">
-            Forgot password
-          </Link>
+        </Form.Item >
+
+            <div style={{display: 'flex', flexDirection: 'column'}}>
+            <Button style={{alignSelf: 'start'}} size="small" type="link" className="login-form-forgot" onClick={() => chrome.tabs.create({ url: 'https://transcribrapp.com/forgot' })}>
+              Forgot password
+          </Button>
+          
+         
           <Button
+            width="100%"
             type="primary"
             htmlType="submit"
             className="login-form-button"
             loading={this.state.loading}
           >
             Log in
-          </Button>
-          Or <Link to="/signup">register now!</Link>
-        </Form.Item>
+            </Button>
+         
+            <Button style={{ alignSelf: 'start' }} size="small" type="link" onClick={() => chrome.tabs.create({ url: 'https://transcribrapp.com/signup' })}>Sign Up</Button>
+          </div>
+
+           
+
+          
+       
+
+         
       </Form>
+
+      </>
     )
   }
 }
