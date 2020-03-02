@@ -21,9 +21,7 @@ function App () {
   const [appState, setAppState] = useState(initialState)
 
   useEffect(() => {
-    // getUser()
     chrome.storage.sync.get(['appState'], (res) => {
-      console.log(res)
       setAppState({ ...appState, ...res.appState })
     })
   }, [])
@@ -60,8 +58,6 @@ function App () {
     chrome.storage.sync.clear()
     setAppState({ ...appState, ...initialState })
   }
-
-  console.log('appState', appState)
 
   if (typeof (appState.token) !== 'string') {
     return <div style={{ margin: '.5rem' }}>

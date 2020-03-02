@@ -7,12 +7,9 @@ import {API_URL} from '../utils/config'
 
 
 export const getToken = async () => {
-    console.log('getting token')
     try {
         const res = await chrome.storage.sync.get(['token'])
         const token = res.token
-        console.log('res', res)
-        console.log('token', token)
 
         return token
     } catch (error) {
@@ -80,7 +77,6 @@ class YoutubeForm extends React.Component {
    
 
     render() {
-        console.log('current URL', this.state.currentURL)
 
        
         return (
