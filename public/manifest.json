@@ -11,6 +11,7 @@
  "content_security_policy": "script-src 'self' 'sha256-3O7hfOqzYo46dDx9x5bJ0mZWf9ltnA8nLeedT+UDpN4='; object-src 'self'",
 "permissions": [
   "storage",
-  "tabs"
+  "tabs",
+  "notifications"
   ]
 }

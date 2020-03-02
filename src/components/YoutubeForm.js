@@ -47,7 +47,7 @@ class YoutubeForm extends React.Component {
         e.preventDefault()
                 try {
                     this.setState({...this.state, loading: true })
-                    openNotificationWithIcon('success', "Youtube download started!")
+                    // openNotificationWithIcon('success', "Youtube download started!")
                     this.props.setAppState({ ...this.props.appState, youtubeUploading: true })
                     const res = await fetch(API_URL + '/youtube', {
                         method: 'POST',
