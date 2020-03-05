@@ -1,121 +1,76 @@
 /* global chrome */
-import React from "react"
-import { Form, Icon, Input, Button, Checkbox } from "antd"
-import { openNotificationWithIcon } from "./Notifications"
-import { navigate, Link } from "@reach/router"
-import {API_URL} from '../utils/config'
-
+import React, { useEffect, useState } from 'react'
+import { Form, Icon, Input, Button } from 'antd'
 
 export const getToken = async () => {
-    try {
-        const res = await chrome.storage.sync.get(['token'])
-        const token = res.token
+  try {
+    const res = await chrome.storage.sync.get(['token'])
+    const token = res.token
 
-        return token
-    } catch (error) {
-        return false
-    }
+    return token
+  } catch (error) {
+    return false
+  }
 }
 
+function YoutubeForm (props) {
+  const loading = props.appState.youtubeUploading || false
+  const [currentURL, setCurrentURL] = useState('')
 
-class YoutubeForm extends React.Component {
-
-
-    state = {
-        loading: this.props.appState.youtubeUploading || false,
-        currentURL: ""
+  useEffect(() => {
+    const getCurrentURL = (tab) => {
+      setCurrentURL(tab)
     }
 
-    componentDidMount(){
+    chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT },
+      (tabs) => {
+        getCurrentURL(tabs[0].url)
+      })
+  }, [props.appState])
 
-        chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT },
-             (tabs) => {
-                getCurrentURL(tabs[0].url)
-            })
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    props.setAppState({ ...props.appState, youtubeUploading: true })
+    const url = e.target.url.value
+    chrome.runtime.sendMessage({ name: 'createYoutubeClip', url, appState: props.appState }, (response) => {
+    })
+  }
 
-        const getCurrentURL = (tab)  => {
-            this.setState({ ...this.state, currentURL: tab })
-        }
-    }
+  return (
+    <>
+      {/* <h1>Add Youtube Clip</h1> */}
+      <Form onSubmit={(e) => handleSubmit(e)}>
+        <Form.Item>
 
+          <Input
 
-
-    handleSubmit =  async  (e) => {
-        e.preventDefault()
-                try {
-                    this.setState({...this.state, loading: true })
-                    // openNotificationWithIcon('success', "Youtube download started!")
-                    this.props.setAppState({ ...this.props.appState, youtubeUploading: true })
-                    const res = await fetch(API_URL + '/youtube', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: this.props.appState.token
-                        },
-                        body: JSON.stringify({
-                            url: e.target.url.value
-                        })
-                    })
-                    if (!res.ok) throw new Error('Invalid url')
-                    const clip = await res.json()
-
-                     // parses JSON response into native JavaScript objects
-                    openNotificationWithIcon('success', `${clip.name} created!`)
-                    this.props.setAppState({ ...this.props.appState})
-                } catch (error) {
-                    console.error(error)
-                    openNotificationWithIcon('error', 'Coudn\'t create clip, please try again')
-                    this.setState({...this.state,loading: false})
-                    this.props.setAppState({ ...this.props.appState, youtubeUploading: false,})
-                    // setClip({ ...clip, saving: false, editClipDrawerOpen: false })
-                }
-
-            this.setState({...this.state, loading: false })
-
-    }
-
-   
-
-    render() {
-
-       
-        return (
-            <>
-            <h1>Add Youtube Clip</h1>
-            <Form onSubmit={this.handleSubmit} >
-                <Form.Item>
-
-                        <Input
-                            onChange={(e) => this.setState({...this.state, currentURL: e.target.value})}
-                            disabled={this.state.loading}
-                            value={this.state.currentURL}
-                            className="url"
-                            name="url"
-                            type="url"
-                            prefix={<Icon type="link" style={{ color: "rgba(0,0,0,.25)" }} />}
-                            // placeholder="https://www.youtube.com/watch?v=96n33WWgE9g"
-                            rules={[{
-                                required: true,
-                                message: 'Please enter a youtube url',
-                            }]}
-                        />
+            onChange={(e) => setCurrentURL(e.target.value)}
+            disabled={loading}
+            value={currentURL}
+            className='url'
+            name='url'
+            type='url'
+            prefix={<Icon type='link' style={{ color: 'rgba(0,0,0,.25)' }} />}
+            rules={[{
+              required: true,
+              message: 'Please enter a youtube url'
+            }]}
+          />
                     )}
-                </Form.Item>
-               
-                <Form.Item>
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={this.state.loading}
-                        disabled={this.state.loading}
-                    >
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type='primary'
+            htmlType='submit'
+            loading={loading}
+            disabled={loading}
+          >
                        Upload
           </Button>
-                </Form.Item>
-            </Form>
-        </>)
-    }
+        </Form.Item>
+      </Form>
+    </>)
 }
-
 
 export default YoutubeForm

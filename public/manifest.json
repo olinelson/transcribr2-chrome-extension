@@ -13,8 +13,8 @@
     "192": "android-chrome-192x192.png",
     "512": "android-chrome-512x512.png"
   },
- "content_security_policy": "script-src 'self' 'sha256-3O7hfOqzYo46dDx9x5bJ0mZWf9ltnA8nLeedT+UDpN4='; object-src 'self'",
-"content_scripts": [
+"content_security_policy": "script-src 'self' 'sha256-3O7hfOqzYo46dDx9x5bJ0mZWf9ltnA8nLeedT+UDpN4=' https://cdnjs.cloudflare.com; object-src 'self'",
+ "content_scripts": [
   {
     "js": [
       "content.js"
@@ -27,12 +27,11 @@
  "permissions": [
   "storage",
   "tabs",
-  "notifications"
+  "notifications",
+  "background"
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
+    "scripts":   ["socket.io.js","background.js"],
+    "persistent": true
   }
 }

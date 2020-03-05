@@ -2,15 +2,12 @@
 /* global chrome */
 import React, { useState, useEffect } from 'react'
 import './App.css'
-import { Router } from '@reach/router'
-import { API_URL } from './utils/config'
-// import PrivateRoute from './components/privateRoute'
+
 import LoginForm from './components/LoginForm'
-import Profile from './components/Profile'
 
 import YoutubeForm from './components/YoutubeForm'
-import { Menu, Button, Tabs, Icon, Descriptions, Divider } from 'antd'
-import { changeConfirmLocale } from 'antd/lib/modal/locale'
+import { Button, Tabs, Icon, Descriptions, Divider } from 'antd'
+
 const { TabPane } = Tabs
 function App () {
   const initialState = {
@@ -19,58 +16,46 @@ function App () {
   }
 
   const [appState, setAppState] = useState(initialState)
-
+  const [activeKey, setActiveKey] = useState('1')
   useEffect(() => {
     chrome.storage.sync.get(['appState'], (res) => {
       setAppState({ ...appState, ...res.appState })
     })
-  }, [])
+
+    chrome.runtime.onMessage.addListener(
+      (request, sender, sendResponse) => {
+        if (request.name === 'refreshAppState') {
+          chrome.storage.sync.get(['appState'], (res) => {
+            setAppState({ ...appState, ...res.appState })
+          })
+        }
+      })
+  }, [appState])
 
   useEffect(() => {
 
-  }, [appState])
-
-  const handleLogin = async ({ email, password }) => {
-    try {
-      let res = await fetch(API_URL + '/users/login', {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *client
-        body: JSON.stringify({ email, password }) // body data type must match "Content-Type" header
-      })
-
-      res = await res.json() // parses JSON response into native JavaScript objects
-      // await setUserAndToken(res)
-      chrome.storage.sync.set({ appState: { user: res.user, token: 'Bearer ' + res.token } })
-      setAppState({ ...appState, user: res.user, token: 'Bearer ' + res.token })
-      return true
-    } catch (error) {
-      console.error(error)
-      return false
-    }
-  }
+  }, [])
 
   const handleLogout = async () => {
-    chrome.storage.sync.clear()
-    setAppState({ ...appState, ...initialState })
+    chrome.runtime.sendMessage({ name: 'logout' })
   }
 
   if (typeof (appState.token) !== 'string') {
-    return <div style={{ margin: '.5rem' }}>
-      <LoginForm handleLogin={handleLogin} />
-    </div>
+    return (
+      <div style={{ margin: '.5rem' }}>
+        <LoginForm />
+      </div>
+    )
   }
 
   return (
     <Tabs defaultActiveKey='1' style={{ margin: '.5rem' }}>
-      <TabPane tab={<Icon type='youtube' />} key='2'>
+
+      <TabPane tab={<Icon type='youtube' />} key='1'>
         <YoutubeForm appState={appState} setAppState={setAppState} />
       </TabPane>
-      <TabPane tab={<Icon type='user' />} key='3'>
+
+      <TabPane tab={<Icon type='user' />} key='2'>
         <Descriptions>
           <Descriptions.Item label='Name'>{appState.user.name || null}</Descriptions.Item>
           <Descriptions.Item label='Email'>
@@ -83,8 +68,6 @@ function App () {
 
     </Tabs>
   )
-
-  // return <LoginForm />
 }
 
 export default App

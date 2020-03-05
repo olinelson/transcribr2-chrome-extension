@@ -1,9 +1,6 @@
 /* global chrome */
 import React from "react"
-import { Form, Icon, Input, Button, Checkbox } from "antd"
-// import { handleLogin } from "../utils/auth"
-import { openNotificationWithIcon } from "./Notifications"
-import { navigate, Link } from "@reach/router"
+import { Form, Icon, Input, Button,  } from "antd"
 
 class Login extends React.Component {
   state = {
@@ -16,13 +13,7 @@ class Login extends React.Component {
     e.preventDefault()
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
-        const loggedInSuccessfully = await this.props.handleLogin(values)
-        if (loggedInSuccessfully) {
-          openNotificationWithIcon("success", "Logged In!")
-          navigate(`/app`)
-        } else {
-          openNotificationWithIcon("error", "Sorry, wrong email or password...")
-        }
+        chrome.runtime.sendMessage({ name: 'login', ...values })
       }
       this.setState({ loading: false })
     })
@@ -74,14 +65,7 @@ class Login extends React.Component {
             </Button>
          
             <Button style={{ alignSelf: 'start' }} size="small" type="link" onClick={() => chrome.tabs.create({ url: 'https://transcribrapp.com/signup' })}>Sign Up</Button>
-          </div>
-
-           
-
-          
-       
-
-         
+          </div>         
       </Form>
 
       </>
